@@ -1,0 +1,17 @@
+#!/usr/bin/env python3
+#
+# Author: Leonardo Robol <leo@robol.it>
+#
+
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
+
+# from wacom_manager.windows import MainWindow
+from wacom_manager import start
+
+if __name__ == "__main__":
+    start()
+    # win = MainWindow()
+    # Gtk.main()

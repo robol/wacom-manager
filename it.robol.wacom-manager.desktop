@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=Wacom Manager
+Comment=Set options for Wacom Tablets
+Exec=wacom-manager
+Terminal=false
+Type=Application
+StartupNotify=true
+Icon=it.robol.wacom-manager
+Categories=Utility;
+Keywords=Wacom;Settings;Utility
+X-Ubuntu-Gettext-Domain=wacom_manager
