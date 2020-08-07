@@ -25,7 +25,6 @@ class WacomManagerIndicator():
         )
 
         self._main_window = MainWindow(True)
-        self._main_window.hide()
 
         self._create_menu()
 
@@ -35,7 +34,7 @@ class WacomManagerIndicator():
         
         self._menu.show_all()
 
-    def _on_wacom_open_activated(self, widget = None):
+    def on_wacom_open_activated(self, widget = None):
         self._main_window.show()
 
     def _update_tablet_name(self, *args):
@@ -56,7 +55,7 @@ class WacomManagerIndicator():
 
         open_item = Gtk.MenuItem(_('Open Wacom Manager'))
         open_item.connect('activate',
-                          self._on_wacom_open_activated)
+                          self.on_wacom_open_activated)
         self._menu.append(open_item)
 
         select_area_item = Gtk.MenuItem(_('Map to Window'))
