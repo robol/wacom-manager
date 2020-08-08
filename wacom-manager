@@ -13,5 +13,3 @@ from wacom_manager import start
 
 if __name__ == "__main__":
     start()
-    # win = MainWindow()
-    # Gtk.main()
