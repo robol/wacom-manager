@@ -5,6 +5,8 @@ which are not available by the standard configuration dialog.
 
 It only provides basic options, at the moment, as they are all I need.
 
+![](https://raw.githubusercontent.com/robol/wacom-manager/master/documentation/demo-wacom-manager.gif)
+
 # How to use
 
 You can run the script directly from its folder; to accomplish that
