@@ -3,7 +3,7 @@
 # Author: Leonardo Robol <leo@robol.it>
 #
 
-import gi
+import gi, argparse
 
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
@@ -11,4 +11,15 @@ from gi.repository import Gtk
 from wacom_manager import start
 
 if __name__ == "__main__":
-    start()
+
+    # Parse options
+    parser = argparse.ArgumentParser(
+        description='Wacom Manager'
+    )
+
+    parser.add_argument('--quiet', default = False, action="store_true",
+                        help = "Does not show the main window at startup")
+
+    options = parser.parse_args()
+    
+    start(options)

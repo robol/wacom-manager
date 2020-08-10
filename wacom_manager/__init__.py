@@ -19,10 +19,10 @@ try:
 except:
     has_indicator = False
 
-def start():
+def start(options):
     if has_indicator:
         from .indicator import WacomManagerIndicator
-        indicator = WacomManagerIndicator()
+        indicator = WacomManagerIndicator(options.quiet)
     else:
         window = MainWindow()
 

@@ -11,6 +11,10 @@ gi.require_version("GUdev", "1.0")
 from gi.repository import Gtk, GUdev, GObject
 
 from .wacom import WacomManager, WacomTablet
+from .log import getLogger
+from .config import getConfig
+
+logger = getLogger()
 
 def get_builder_for(ui_name):
     """Construct a Gtk.Builder object that automatically
@@ -25,11 +29,14 @@ def get_builder_for(ui_name):
     local_file = os.path.join(module_path, "..", "ui", ui_name)
 
     if os.path.exists(local_file):
+        logger.info('Added UI definition from %s' % local_file)
         builder.add_from_file(local_file)
     else:
-        builder.add_from_file(
-            os.path.join("/usr/share/wacom-manager/ui", ui_name)
+        ui_path = os.path.join(
+            "/usr/share/wacom-manager/ui", ui_name
         )
+        logger.info('Trying to open UI from %s' % ui_path)
+        builder.add_from_file(ui_path)
 
     return builder
 
@@ -76,6 +83,11 @@ class MainWindow(GObject.GObject):
     def _init_widgets(self):
         self._refresh_tablets()
 
+        config = getConfig()
+        self._start_at_boot_checkbutton.set_active(
+            config.get_start_at_boot()
+        )
+
     def get_active_device(self):
         id = self._wacom_selector.get_active_id()
 
@@ -90,7 +102,7 @@ class MainWindow(GObject.GObject):
         self._wacom_selector.remove_all()
 
         if len(self._devices) == 0:
-            self._wacom_selector.append("0", _("No tablets found"))
+            self._wacom_selector.append("0", _("No tablet detected"))
             self._wacom_selector.set_active_id("0")
             self.emit('tablet_changed')
         else:
@@ -110,12 +122,24 @@ class MainWindow(GObject.GObject):
 
     def _load_widgets(self):
         self._window = self._builder.get_object("window")
+
+        # Widgets in the top tablet-selection part
         self._select_window_button = self._builder.get_object(
-            "select_window_button")
-        self._status_label = self._builder.get_object("status_label")
+            "select_window_button"
+        )
         self._wacom_selector = self._builder.get_object("wacom_selector")
+
+        # Widgets in the tablet options part
         self._rapid_actions_frame = self._builder.get_object("rapid_actions_frame")
         self._rotation_combobox = self._builder.get_object("rotation_combobox")
+
+        # Widgets in the preferences block
+        self._start_at_boot_checkbutton = self._builder.get_object(
+            "start_at_boot_checkbutton"
+        )
+
+        # Widget in the status bar
+        self._status_label = self._builder.get_object("status_label")        
 
     def _connect_callbacks(self):
         if self._has_indicator:
@@ -129,6 +153,9 @@ class MainWindow(GObject.GObject):
         self._rotation_combobox.connect("changed",
                                         self._on_rotation_changed)
 
+        self._start_at_boot_checkbutton.connect("toggled",
+                                                self._on_start_at_boot_toggled)
+
     def set_status(self, status):
         self._status_label.set_text(status)
 
@@ -139,6 +166,10 @@ class MainWindow(GObject.GObject):
         if device:
             # Set the current rotation in the combobox
             self._rotation_combobox.set_active_id(device.get_rotation())
+
+    def _on_start_at_boot_toggled(self, widget = None):
+        config = getConfig()
+        config.set_start_at_boot(self._start_at_boot_checkbutton.get_active())
 
     def on_select_window_clicked(self, button = None):
         # We need to make the user select a valid window
