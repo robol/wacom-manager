@@ -7,7 +7,8 @@ setup(
     scripts = [ 'wacom-manager' ],
     data_files = [
         ('share/wacom-manager/ui', [ 'ui/main-window.ui' ]),
-        ('share/applications', [ 'it.robol.wacom-manager.desktop' ])
+        ('share/applications', [ 'it.robol.wacom-manager.desktop' ]),
+        ('share/icons', [ 'it.robol.wacom-manager.png' ])
     ]
 )
 
