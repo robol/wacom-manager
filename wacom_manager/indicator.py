@@ -12,9 +12,9 @@ from gi.repository import AppIndicator3, Gtk
 from .windows import MainWindow
 from . import _
 
-class WacomManagerIndicator():
+class WacomManagerIndicator(AppIndicator3.Indicator):
 
-    def __init__(self, quiet):
+    def __init__(self, app, quiet):
         self._indicator = AppIndicator3.Indicator.new(
             "wacom-manager", "input-tablet",
             AppIndicator3.IndicatorCategory.APPLICATION_STATUS
@@ -23,26 +23,22 @@ class WacomManagerIndicator():
         self._indicator.set_status(
             AppIndicator3.IndicatorStatus.ACTIVE
         )
+        
+        self._app = app        
 
         self._menu = None
-
-        self._main_window = MainWindow(True)
-        if quiet:
-            self._main_window.hide()
-
         self._create_menu()            
-
-        self._main_window.connect(
-            'tablet_changed', self._update_tablet_name
-        )
-        
         self._menu.show_all()
 
+        app.main_window.connect('tablet_changed',
+                                self._update_tablet_name)
+
     def on_wacom_open_activated(self, widget = None):
-        self._main_window.show()
+        self._app.main_window.show()
+        self._app.main_window.present()
 
     def _update_tablet_name(self, *args):
-        device = self._main_window.get_active_device()
+        device = self._app.main_window.get_active_device()
         label  = self._tablet_selected.get_children()[0]
         if device is None:
             label.set_text('No tablet detected')
@@ -67,14 +63,14 @@ class WacomManagerIndicator():
 
         self._select_area_item = Gtk.MenuItem(_('Map to Window'))
         self._select_area_item.connect('activate',
-                                       self._main_window.on_select_window_clicked)
+                                       self._app.main_window.on_select_window_clicked)
         self._menu.append(self._select_area_item)
 
         sep = Gtk.SeparatorMenuItem()
         self._menu.append(sep)
 
         close_item = Gtk.MenuItem(_('Quit'))
-        close_item.connect('activate', Gtk.main_quit)
+        close_item.connect('activate', lambda x : self._app.quit())
         self._menu.append(close_item)
 
         self._update_tablet_name()

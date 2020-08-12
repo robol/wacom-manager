@@ -2,7 +2,12 @@
 # Author: Leonardo Robol <leo@robol.it>
 #
 
-import subprocess
+import subprocess, gi
+
+gi.require_version('GObject', '2.0')
+gi.require_version('GUdev', '1.0')
+
+from gi.repository import GObject, GUdev
 
 class WacomError(Exception):
     pass
@@ -17,10 +22,12 @@ def run_xsetwacom(args):
     else:
         return output.strip()
 
-class WacomManager():
+class WacomManager(GObject.GObject):
 
     def __init__(self):
+        GObject.GObject.__init__(self)
         self._xsetwacom = "xsetwacom"
+        self._setup_observer()
 
     def find_devices(self):
         devices = []
@@ -36,6 +43,18 @@ class WacomManager():
                 devices.append(WacomTablet(id, name))
                 
         return devices
+
+    def _setup_observer(self):
+        self._udev_client = GUdev.Client.new([ 'input' ])
+        self._udev_client.connect('uevent', self._on_device_event)
+        
+    def _on_device_event(self, observer, action, device):
+        self.emit('tablets_changed')
+
+    @GObject.Signal
+    def tablets_changed(self):
+        pass
+    
 
 class WacomTablet():
 

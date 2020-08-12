@@ -1,18 +1,14 @@
 #!/usr/bin/env python3
 
 import gi, subprocess, os
-import gettext
-
-_ = gettext.gettext
 
 gi.require_version("Gtk", "3.0")
-gi.require_version("GUdev", "1.0")
-
-from gi.repository import Gtk, GUdev, GObject
+from gi.repository import Gtk, GObject
 
 from .wacom import WacomManager, WacomTablet
 from .log import getLogger
 from .config import getConfig
+from . import _
 
 logger = getLogger()
 
@@ -42,29 +38,31 @@ def get_builder_for(ui_name):
 
 class MainWindow(GObject.GObject):
 
-    def __init__(self, has_indicator = False):
+    def __init__(self, app, has_indicator = False):
         GObject.GObject.__init__(self)
-        
-        self.manager = WacomManager()
-        self._has_indicator = has_indicator
 
+        self._app = app
+
+        self._has_indicator = has_indicator
         self._builder = get_builder_for("main-window.ui")
         self._load_widgets()
         self._connect_callbacks()
         self._init_widgets()
-        self._window.show_all()
         
         self.set_status(_("Wacom Manager 0.1 started"))
 
-        self._setup_observer()
-
-    @GObject.Signal
-    def tablet_changed(self, *args):
-        pass
+        self._app.manager.connect('tablets_changed',
+                                  self._refresh_tablets)
 
     def show(self):
         self._window.show_all()
         self._refresh_tablets()
+
+    def present(self):
+        self._window.present()
+
+    def window(self):
+        return self._window
 
     def hide(self, widget = None, x = None):
         self._window.hide()
@@ -72,13 +70,6 @@ class MainWindow(GObject.GObject):
         # This is just to stop delete-event chaining
         # with the rest of the system
         return True
-
-    def _setup_observer(self):
-        self._udev_client = GUdev.Client.new([ 'input' ])
-        self._udev_client.connect('uevent', self._on_device_event)
-
-    def _on_device_event(self, observer, action, device):
-        self._refresh_tablets()
 
     def _init_widgets(self):
         self._refresh_tablets()
@@ -97,8 +88,12 @@ class MainWindow(GObject.GObject):
 
         return None
 
-    def _refresh_tablets(self):
-        self._devices = self.manager.find_devices()
+    @GObject.Signal
+    def tablet_changed(self):
+        pass
+
+    def _refresh_tablets(self, *args):
+        self._devices = self._app.manager.find_devices()
         self._wacom_selector.remove_all()
 
         if len(self._devices) == 0:
@@ -146,7 +141,7 @@ class MainWindow(GObject.GObject):
             self._window.connect("delete-event", self.hide)
             self._window.connect("destroy", lambda x : True)
         else:
-            self._window.connect("destroy", Gtk.main_quit)
+            self._window.connect("destroy", lambda x : self._app.quit())
             
         self._select_window_button.connect("clicked",
                                            self.on_select_window_clicked)
