@@ -10,7 +10,7 @@
       <placeholder/>
     </child>
     <child>
-      <object class="GtkBox">
+      <object class="GtkBox" id="main_container">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="margin_left">6</property>
@@ -100,7 +100,7 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkButton" id="adjust_info_button">
+                      <object class="GtkButton" id="map_to_window_info_button">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
@@ -146,7 +146,7 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkButton" id="adjust_info_button1">
+                      <object class="GtkButton" id="rotation_info_button">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>

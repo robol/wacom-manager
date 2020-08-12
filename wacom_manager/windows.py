@@ -48,7 +48,7 @@ class MainWindow(GObject.GObject):
         self._load_widgets()
         self._connect_callbacks()
         self._init_widgets()
-        
+
         self.set_status(_("Wacom Manager 0.1 started"))
 
         self._app.manager.connect('tablets_changed',
@@ -102,7 +102,7 @@ class MainWindow(GObject.GObject):
             self.emit('tablet_changed')
         else:
             oldid = self._wacom_selector.get_active_id()
-            
+
             for device in self._devices:
                 self._wacom_selector.append(device.id, device.name)
 
@@ -116,25 +116,19 @@ class MainWindow(GObject.GObject):
         self._rapid_actions_frame.set_sensitive(have_tablets)
 
     def _load_widgets(self):
-        self._window = self._builder.get_object("window")
+        # List of widgets to load using Gtk.Builder, which are
+        # automatically mapped to members of this object prepending
+        # a _ symbol. That is, "window" -> self._window.
+        widgets =  [
+            "window", "select_window_button",
+            "wacom_selector", "rapid_actions_frame",
+            "rotation_combobox", "map_to_window_info_button",
+            "rotation_info_button", "start_at_boot_checkbutton",
+            "status_label"
+        ]
 
-        # Widgets in the top tablet-selection part
-        self._select_window_button = self._builder.get_object(
-            "select_window_button"
-        )
-        self._wacom_selector = self._builder.get_object("wacom_selector")
-
-        # Widgets in the tablet options part
-        self._rapid_actions_frame = self._builder.get_object("rapid_actions_frame")
-        self._rotation_combobox = self._builder.get_object("rotation_combobox")
-
-        # Widgets in the preferences block
-        self._start_at_boot_checkbutton = self._builder.get_object(
-            "start_at_boot_checkbutton"
-        )
-
-        # Widget in the status bar
-        self._status_label = self._builder.get_object("status_label")        
+        for w in widgets:
+            setattr(self, '_%s' % w, self._builder.get_object(w))
 
     def _connect_callbacks(self):
         if self._has_indicator:
@@ -142,14 +136,38 @@ class MainWindow(GObject.GObject):
             self._window.connect("destroy", lambda x : True)
         else:
             self._window.connect("destroy", lambda x : self._app.quit())
-            
+
         self._select_window_button.connect("clicked",
                                            self.on_select_window_clicked)
+        self._map_to_window_info_button.connect("clicked",
+                self._on_map_to_window_info_clicked)
+        self._rotation_info_button.connect("clicked",
+                self._on_rotation_info_button_clicked)
         self._rotation_combobox.connect("changed",
                                         self._on_rotation_changed)
 
         self._start_at_boot_checkbutton.connect("toggled",
                                                 self._on_start_at_boot_toggled)
+
+    def _on_map_to_window_info_clicked(self, *args):
+        self._show_info_message('Map To Window',
+            _("Map to Window allows to restrict the area spanned by the pointer to a region of the screen, identified by a given window."))
+
+    def _on_rotation_info_button_clicked(self, *args):
+        self._show_info_message('Rotation',
+            _("Set the rotation for the tablet."))
+
+    def _show_info_message(self, title, msg):
+        dialog = Gtk.MessageDialog(
+            self._window,
+            Gtk.DialogFlags.MODAL,
+            Gtk.MessageType.INFO,
+            Gtk.ButtonsType.OK,
+            msg
+        )
+
+        dialog.run()
+        dialog.destroy()
 
     def set_status(self, status):
         self._status_label.set_text(status)
@@ -167,7 +185,7 @@ class MainWindow(GObject.GObject):
         config.set_start_at_boot(self._start_at_boot_checkbutton.get_active())
 
     def on_select_window_clicked(self, button = None):
-        # We need to make the user select a valid window
+        # We need to make the user selects a valid window
         p = subprocess.Popen("xwininfo", shell = True,
                              stdout = subprocess.PIPE)
         output = p.communicate()[0].decode("utf-8")
@@ -187,6 +205,7 @@ class MainWindow(GObject.GObject):
         device = self.get_active_device()
         if device:
             device.set_geometry(geometry)
+            self.set_status("Set geometry to %s" % geometry)
 
     def _on_rotation_changed(self, widget = None):
         rot = self._rotation_combobox.get_active_id()
@@ -194,5 +213,3 @@ class MainWindow(GObject.GObject):
         if rot:
             device = self.get_active_device()
             device.set_rotation(rot)
-
-            
