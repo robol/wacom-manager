@@ -19,7 +19,8 @@ $ sudo apt install gir1.2-appindicator3-0.1
 and then clone the repository and run the script
 ```
 $ git clone https://github.com/robol/wacom-manager/
-$ cd wacom; ./wacom-manager
+$ cd wacom-manager
+$ ./wacom-manager
 ```
 
 If you install the packages ```python3-stdeb```, 
