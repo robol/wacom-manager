@@ -4,7 +4,7 @@
 
 import logging, os
 
-logger = logging.getLogger('it.robol.wacom-manager')
+logger = logging.getLogger('it.robol.WacomManager')
 
 logging_level = os.getenv('WACOM_DEBUG', 'WARNING')
 

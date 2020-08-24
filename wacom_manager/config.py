@@ -20,7 +20,7 @@ Exec=wacom-manager --quiet
 Terminal=false
 Type=Application
 StartupNotify=true
-Icon=it.robol.wacom-manager
+Icon=it.robol.WacomManager
 Categories=Utility;
 Keywords=Wacom;Settings;Utility
 X-Ubuntu-Gettext-Domain=wacom_manager
@@ -67,7 +67,7 @@ class Config():
             logger.warning('Autostart directory does not exist')
         else:
             return os.path.join(autostart_path,
-                                "it.robol.wacom-manager.desktop")
+                                "it.robol.WacomManager.desktop")
 
     def get_start_at_boot(self):
         if 'start_at_boot' in self._options:
@@ -112,9 +112,18 @@ class Config():
             home_directory = os.getenv('HOME')
             config_directory = os.path.join(home_directory,
                                             '.config')
-
+            
+        # This is used to check if an old config
+        # directory exists, and migrate it
+        old_config_directory = os.path.join(config_directory,
+                                            'it.robol.wacom-manager')
         config_directory = os.path.join(config_directory,
-                                        'it.robol.wacom-manager')
+                                        'it.robol.WacomManager')
+
+        if os.path.exists(old_config_directory) and not os.path.exists(config_directory):
+            logger.info("Migrating old config: %s -> %s" % (old_config_directory,
+                                                            config_directory))
+            os.rename(old_config_directory, config_directory)
 
         logger.info("Config directory: %s" % config_directory)
 

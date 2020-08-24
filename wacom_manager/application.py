@@ -25,7 +25,7 @@ class Application(Gtk.Application):
     def __init__(self, options):
         Gtk.Application.__init__(
             self,
-            application_id = "it.robol.wacom-manager",
+            application_id = "it.robol.WacomManager",
             flags=Gio.ApplicationFlags.FLAGS_NONE
         )
 
