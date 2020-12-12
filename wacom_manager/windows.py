@@ -5,6 +5,7 @@ import gi, subprocess, os
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, GObject
 
+from .dialogs import InfoDialog
 from .wacom import WacomManager, WacomTablet
 from .log import getLogger
 from .config import getConfig
@@ -151,18 +152,16 @@ class MainWindow(GObject.GObject):
 
     def _on_map_to_window_info_clicked(self, *args):
         self._show_info_message('Map To Window',
-            _("Map to Window allows to restrict the area spanned by the pointer to a region of the screen, identified by a given window."))
+            _("Map to Window allows to restrict the area spanned by the pointer to a region of the screen, identified by a given window.\n\nPlease note that the area on the screen is fixed, not the window. So moving the window will still restrict the table to the same region of the screen. "))
 
     def _on_rotation_info_button_clicked(self, *args):
         self._show_info_message('Rotation',
-            _("Set the rotation for the tablet."))
+            _("This button sets the rotation for the tablet."))
 
     def _show_info_message(self, title, msg):
-        dialog = Gtk.MessageDialog(
+        dialog = InfoDialog(
             self._window,
-            Gtk.DialogFlags.MODAL,
-            Gtk.MessageType.INFO,
-            Gtk.ButtonsType.OK,
+            title,
             msg
         )
 

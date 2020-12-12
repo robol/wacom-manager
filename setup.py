@@ -11,7 +11,7 @@ setup(
         ('share/icons/hicolor/48x48/apps', [ 'icons/48x48/it.robol.WacomManager.png' ]),
         ('share/icons/hicolor/128x128/apps', [ 'icons/128x128/it.robol.WacomManager.png' ]),
         ('share/icons/hicolor/256x256/apps', [ 'icons/256x256/it.robol.WacomManager.png' ])
-    ]
+    ],
 )
 
 # To build a deb file, assuming stdeb is installed:
